@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Course 55">
-<title>NPF Course 55 Welfare</title>
+<title>NPF Course 55 App</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -127,7 +127,7 @@ dt{color:var(--muted)} dd{margin:0;overflow-wrap:anywhere}
 <header>
   <div class="wrap">
     <div style="flex:1;min-width:0">
-      <h1 id="course-name">Course Mates Welfare</h1>
+      <h1 id="course-name">NPF Course 55</h1>
       <p id="course-sub">Register, contributions and notices</p>
     </div>
     <button class="badge" id="role-badge" data-act="menu" disabled hidden></button>
@@ -683,7 +683,7 @@ function noticeForm(id){
 }
 function courseForm(){
   openSheet(`<h2>Course details</h2>
-    <label>Course or set name<input id="c-name" name="name" value="${esc(S.meta.name)}" placeholder="e.g. Course 12/2009 Welfare"></label>
+    <label>Course or set name<input id="c-name" name="name" value="${esc(S.meta.name)}" placeholder="e.g. NPF Course 55"></label>
     <label>Line under the name<input id="c-detail" name="detail" value="${esc(S.meta.detail)}" placeholder="e.g. Police College, Ikeja"></label>
     ${sheetButtons('Save')}`,
   async f=>{ await db.doc('meta/course').set({name:f.name.trim(),detail:f.detail.trim()}); });
