@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Course 55">
+<title>NPF Course 55 Welfare</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: phone-first register. Slim header with the force tri-colour strip, one scrolling column, tab bar fixed at the bottom. */
+:root{
+  --bg:#edf0f6; --surface:#ffffff; --ink:#101b33; --muted:#566180; --line:#d3d9e6;
+  --accent:#1d3f8f; --accent-ink:#ffffff; --tint:#e2e9fa;
+  --gold:#d2a516; --green:#1c7a4a; --warn:#9a5a06; --bad:#a8322d; --gone:#5d6373;
+  --display:"Archivo","Arial Narrow",Arial,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0b111e; --surface:#141c2e; --ink:#e8ecf6; --muted:#9aa6c0; --line:#283350;
+  --accent:#86a7ff; --accent-ink:#0b111e; --tint:#1c2848;
+  --gold:#e3b93a; --green:#5cc490; --warn:#e3a550; --bad:#f0857e; --gone:#a2a8b8; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0b111e; --surface:#141c2e; --ink:#e8ecf6; --muted:#9aa6c0; --line:#283350;
+  --accent:#86a7ff; --accent-ink:#0b111e; --tint:#1c2848;
+  --gold:#e3b93a; --green:#5cc490; --warn:#e3a550; --bad:#f0857e; --gone:#a2a8b8; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--body)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header{background:var(--surface);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:12px;padding-block:14px}
+header h1{font:700 20px/1.15 var(--display);margin:0;text-wrap:balance;min-width:0;flex:1}
+header p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+.strip{height:4px;background:linear-gradient(90deg,var(--accent) 0 34%,var(--gold) 34% 67%,var(--green) 67%)}
+.badge:disabled{opacity:1;cursor:default}
+.badge{border:0;font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:99px;background:var(--tint);color:var(--accent);white-space:nowrap}
+
+main{padding-block:18px 104px;display:flex;flex-direction:column;gap:16px}
+h2{font:700 18px/1.2 var(--display);margin:0}
+h3{font:600 12px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0}
+.head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:13.5px;margin:0}
+.banner{background:var(--tint);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.banner.publish{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.pad{padding:14px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.figures{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.figures div{padding:10px 12px;min-width:0}
+.figures div+div{border-left:1px solid var(--line)}
+.figures b{display:block;font:700 17px var(--display);font-variant-numeric:tabular-nums}
+.figures span{font-size:12px;color:var(--muted)}
+.big{font:700 30px/1.1 var(--display);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.in{color:var(--green)} .out{color:var(--bad)}
+
+.row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:12px 14px}
+.row:first-child{border-top:0}
+button.row:hover{background:var(--tint)}
+.row-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.row-main b{font-weight:600;overflow-wrap:anywhere}
+.row-main small{color:var(--muted);font-size:12.5px;overflow-wrap:anywhere}
+.pill{font:600 11.5px var(--body);padding:3px 9px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.pill.serving,.pill.paid,.pill.open{color:var(--green)}
+.pill.retired,.pill.unpaid{color:var(--warn)}
+.pill.deceased,.pill.closed{color:var(--gone)}
+.pill.type{color:var(--accent)}
+.gate label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:500;color:var(--muted)}
+.sel{user-select:all;-webkit-user-select:all}
+.pill.helped{align-self:flex-start;margin-top:4px;color:var(--accent);background:var(--tint);border-color:transparent;white-space:normal}
+
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green);border-radius:99px}
+.between{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.search{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:9px 14px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.danger{background:transparent;color:var(--bad);border-color:var(--bad)}
+.btn.small{padding:6px 10px;font-size:13px}
+.btn:disabled{opacity:.55}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:600}
+
+.empty{padding:26px 16px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font:600 16px var(--display);margin-bottom:4px}
+.notice-body{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav .wrap{display:grid;grid-template-columns:repeat(5,1fr)}
+nav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;color:var(--muted);text-decoration:none;font-size:11px;font-weight:500;min-width:0}
+nav a[aria-current="page"]{color:var(--accent);font-weight:600}
+nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+dialog{border:0;padding:0;background:var(--surface);color:var(--ink);width:100%;max-width:520px;max-height:88dvh;border-radius:16px 16px 0 0;margin:auto auto 0;overflow:auto}
+dialog::backdrop{background:rgba(5,10,25,.55)}
+@media (min-width:600px){ dialog{margin:auto;border-radius:16px} }
+.sheet{padding:18px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+.sheet label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:500;color:var(--muted)}
+.sheet input,.sheet select,.sheet textarea{padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);width:100%}
+.sheet textarea{min-height:96px;resize:vertical}
+.sheet .check{flex-direction:row;align-items:center;gap:8px;color:var(--ink)}
+.sheet .check input{width:auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two>*{min-width:0}
+.err{color:var(--bad);font-size:13.5px;margin:0}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+dt{color:var(--muted)} dd{margin:0;overflow-wrap:anywhere}
+@media (prefers-reduced-motion:no-preference){ .bar i{transition:width .3s} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div style="flex:1;min-width:0">
+      <h1 id="course-name">Course Mates Welfare</h1>
+      <p id="course-sub">Register, contributions and notices</p>
+    </div>
+    <button class="badge" id="role-badge" data-act="menu" disabled hidden></button>
+  </div>
+  <div class="strip"></div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<nav aria-label="Sections"><div class="wrap">
+  <a href="#home" data-nav="home"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"></path></svg>Home</a>
+  <a href="#members" data-nav="members"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.700 6 6M16 5.200a3.200 3.200 0 010 5.600M17.500 14.300c2 .8 3.500 2.900 3.500 5.700"></path></svg>Members</a>
+  <a href="#contributions" data-nav="contributions"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.300-7-9.500A4 4 0 0112 8a4 4 0 017 2.500C19 15.700 12 20 12 20z"></path></svg>Appeals</a>
+  <a href="#account" data-nav="account"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M3 10h18M7 15h4"></path></svg>Account</a>
+  <a href="#notices" data-nav="notices"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l7 4V6l-7 4zM17.500 9.500a4 4 0 010 5"></path></svg>Notices</a>
+</div></nav>
+
+<dialog id="sheet"></dialog>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const naira=n=>'₦'+Math.round(Number(n)||0).toLocaleString('en-NG');
+const ftime=t=>{ const d=new Date(t); return isNaN(d)?'':d.toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}); };
+const fdate=d=>{ if(!d) return ''; const t=new Date(d+'T00:00:00'); return isNaN(t)?String(d):t.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const VIEWS=['home','members','contributions','account','notices'];
+const RANKS=['Constable','Corporal','Sergeant','Inspector','ASP','DSP','SP','CSP','ACP','DCP','CP','AIG','DIG'];
+const REASONS=['Bereavement','Sickness or injury','Wedding','Retirement','Emergency','Other'];
+const NOTICE_TYPES=['Contribution call','Meeting or event','Promotion or news','Season’s greetings','Other'];
+const STATUS={serving:'Serving',retired:'Retired',deceased:'Deceased'};
+
+const S={members:[],contacts:{},appeals:[],payouts:[],notices:[],meta:{},admin:false,loaded:false,problem:'',view:'home',q:'',filter:'all',appeal:null,payQ:''};
+S.got=new Set(); S.excos=[]; S.me=''; S.payFilter='all'; S.screen='loading'; S.rawMembers=[]; S.priv={}; S.requests=[]; S.admins=[]; S.need=6;
+const CONFIG={apiKey:"AIzaSyDIh1SAWJpgX6jH641iybN_ECrV1JJUrcE",authDomain:"npf-course-55.firebaseapp.com",projectId:"npf-course-55",storageBucket:"npf-course-55.firebasestorage.app",messagingSenderId:"338572943445",appId:"1:338572943445:web:aa68a5dc993ff2e4d134dc"};
+let db=null, auth=null, unsubs=[], subTimer=0, enterSeq=0;
+const dl={save:async({filename,data})=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'text/csv'})); a.download=filename; document.body.append(a); a.click(); a.remove(); }};
+const norm=v=>{ const t=String(v||''), d=t.replace(/\D/g,''); return d.length>=3?d:t.toUpperCase().replace(/[^A-Z0-9]/g,''); };
+const now=()=>new Date().toISOString();
+function clearData(){ S.members=[]; S.rawMembers=[]; S.priv={}; S.contacts={}; S.appeals=[]; S.payouts=[]; S.notices=[]; S.excos=[]; S.requests=[]; S.admins=[]; }
+/* Public member details and exco-only details are kept apart, so members never receive Force Nos., phones or notes. */
+function merge(){
+  S.members=S.rawMembers.map(m=>{ const p=S.priv[m.id]||{}; return {...m,forceNo:p.forceNo||'',dob:p.dob||'',note:p.note||''}; });
+  S.contacts=Object.fromEntries(Object.entries(S.priv).map(([k,p])=>[k,{phone:p.phone||''}]));
+}
+function stopSubs(){ unsubs.forEach(u=>u()); unsubs=[]; clearTimeout(subTimer); S.got=new Set(); S.problem=''; }
+function startSubs(){
+  stopSubs(); S.need=S.admin?7:6;
+  subTimer=setTimeout(()=>{ if(S.got.size<S.need){ S.problem='slow'; render(); } },10000);
+  const got=k=>{ S.got.add(k); S.problem=''; if(S.got.size>=S.need) clearTimeout(subTimer); };
+  const dead=e=>{ clearTimeout(subTimer); if(e&&e.code==='permission-denied'){ enter(auth.currentUser); return; } S.problem='error'; render(); };
+  const map=s=>s.exists&&s.data().m?Object.entries(s.data().m).map(([id,v])=>({...v,id})):[];
+  const col=key=>unsubs.push(db.collection(key).onSnapshot(s=>{ S[key]=s.docs.map(x=>({...x.data(),id:x.id})); got(key); render(); },dead));
+  unsubs.push(db.doc('public/members').onSnapshot(s=>{ S.rawMembers=map(s); merge(); got('members'); render(); },dead));
+  ['appeals','payouts','notices','excos'].forEach(col);
+  unsubs.push(db.doc('meta/course').onSnapshot(s=>{ S.meta=s.exists?s.data():{}; got('meta'); renderHead(); render(); },dead));
+  if(S.admin){
+    unsubs.push(db.doc('private/members').onSnapshot(s=>{ S.priv=Object.fromEntries(map(s).map(p=>[p.id,p])); merge(); got('private'); render(); },dead));
+    unsubs.push(db.collection('requests').onSnapshot(s=>{ S.requests=s.docs.map(x=>({...x.data(),id:x.id})); render(); },()=>{}));
+    unsubs.push(db.collection('admins').onSnapshot(s=>{ S.admins=s.docs.map(x=>({...x.data(),id:x.id})); },()=>{}));
+  }
+}
+const show=screen=>{ S.screen=screen; renderHead(); render(); };
+function gateMsg(text,ok){ const el=$('#gate-err'); if(!el) return; el.textContent=text; el.className=ok?'note':'err'; el.hidden=!text; }
+function authMsg(x){
+  if(x&&x.userMessage) return x.userMessage;
+  switch(x&&x.code){
+    case 'auth/invalid-credential': case 'auth/wrong-password': case 'auth/user-not-found': case 'auth/invalid-login-credentials': return 'Wrong email or password.';
+    case 'auth/invalid-email': return 'That email address does not look right.';
+    case 'auth/missing-password': return 'Enter your password.';
+    case 'auth/email-already-in-use': return 'An account with that email already exists. Sign in instead.';
+    case 'auth/weak-password': return 'Use a password of at least 6 characters.';
+    case 'auth/too-many-requests': return 'Too many attempts. Wait a few minutes and try again.';
+    case 'auth/operation-not-allowed': case 'auth/admin-restricted-operation': return 'This sign-in method is switched off in the Firebase console.';
+    case 'permission-denied': return 'The records refused the request. Check that the access rules have been published.';
+    default: return 'Could not connect. Check your internet and try again.';
+  }
+}
+/* Decides what a signed-in person sees: a member (Force No.), an exco, the first-exco setup, or a waiting request. */
+async function enter(u){
+  const my=++enterSeq; stopSubs(); S.admin=false; S.me=''; clearData();
+  try{
+    if(!u){ show(S.screen==='login'||S.screen==='signup'?S.screen:'lock'); return; }
+    if(u.isAnonymous){
+      const s=await db.doc('sessions/'+u.uid).get(); if(my!==enterSeq) return;
+      const r=s.exists&&s.data().no?await db.doc('roster/'+s.data().no).get():null; if(my!==enterSeq) return;
+      if(!r||!r.exists){ show(S.screen==='login'||S.screen==='signup'?S.screen:'lock'); return; }
+      S.me=r.data().mid||''; S.screen='app'; S.appeal=null; history.replaceState(null,'','#home'); renderHead(); route(); startSubs(); return;
+    }
+    const a=await db.doc('admins/'+u.uid).get(); if(my!==enterSeq) return;
+    if(a.exists){ S.admin=true; S.screen='app'; S.appeal=null; history.replaceState(null,'','#home'); renderHead(); route(); startSubs(); return; }
+    const c=await db.doc('config/claimed').get(); if(my!==enterSeq) return;
+    if(!c.exists){ show('claim'); return; }
+    await db.doc('requests/'+u.uid).set({email:u.email||'',name:S.signupName||u.displayName||'',at:now()}); if(my!==enterSeq) return;
+    show('pending');
+  }catch(e){ if(my!==enterSeq) return; show(u&&!u.isAnonymous?'login':'lock'); gateMsg(authMsg(e)); }
+}
+async function tryUnlock(no){
+  const n=norm(no); if(n.length<3) throw {userMessage:'Enter your Force No.'};
+  if(!auth.currentUser) await auth.signInAnonymously();
+  const r=await db.doc('roster/'+n).get();
+  if(!r.exists) throw {userMessage:'That Force No. is not on the register. Check it, or ask an exco.'};
+  await db.doc('sessions/'+auth.currentUser.uid).set({no:n});
+  await enter(auth.currentUser);
+}
+async function memberLock(){
+  const u=auth.currentUser; stopSubs();
+  try{ if(u) await db.doc('sessions/'+u.uid).delete(); }catch(e){}
+  S.screen='lock'; enter(u);
+}
+function gateView(){
+  const err='<p class="err" id="gate-err" hidden></p>';
+  if(S.screen==='lock') return `<section class="panel"><form class="pad stack gate" id="unlock-form" novalidate><h2>Members only</h2>
+    <p class="note">Enter your Force No. to open the records.</p>
+    <input class="search" id="unlock-no" autocomplete="off" placeholder="Force No." aria-label="Force No.">${err}
+    <div class="actions"><button class="btn" type="submit">Open records</button></div>
+    <p class="note">Can’t get in? Ask an exco to check your Force No. on the register.</p></form></section>
+    <button class="link" data-act="go" data-id="login" style="align-self:center">Exco login</button>`;
+  if(S.screen==='login') return `<section class="panel"><form class="pad stack gate" id="login-form" novalidate><h2>Exco login</h2>
+    <label>Email<input class="search" id="login-email" type="email" autocomplete="username"></label>
+    <label>Password<input class="search" id="login-pass" type="password" autocomplete="current-password"></label>${err}
+    <div class="actions"><button class="btn" type="submit">Sign in</button><button class="btn ghost" type="button" data-act="forgot">Forgot password</button></div></form></section>
+    <div class="actions" style="justify-content:center;gap:18px"><button class="link" data-act="go" data-id="signup">Create exco account</button><button class="link" data-act="go" data-id="lock">Member sign-in</button></div>`;
+  if(S.screen==='signup') return `<section class="panel"><form class="pad stack gate" id="signup-form" novalidate><h2>Create exco account</h2>
+    <p class="note">For excos only. After you create the account, an existing exco must approve it before you can edit records.</p>
+    <label>Your name<input class="search" id="signup-name" autocomplete="name"></label>
+    <label>Email<input class="search" id="signup-email" type="email" autocomplete="username"></label>
+    <label>Password (at least 6 characters)<input class="search" id="signup-pass" type="password" autocomplete="new-password"></label>${err}
+    <div class="actions"><button class="btn" type="submit">Create account</button></div></form></section>
+    <button class="link" data-act="go" data-id="login" style="align-self:center">Back to exco login</button>`;
+  if(S.screen==='claim') return `<section class="panel"><div class="pad stack"><h2>Set up the first exco</h2>
+    <p class="note">No exco has been set up for this app yet. You will become the first exco, with the power to edit records and approve other excos.</p>${err}
+    <div class="actions"><button class="btn" data-act="claim">Make me the first exco</button><button class="btn ghost" data-act="signout">Sign out</button></div></div></section>`;
+  if(S.screen==='pending') return `<section class="panel"><div class="pad stack"><h2>Waiting for approval</h2>
+    <p class="note">Your request has been sent. An existing exco must open Exco menu, then Manage excos, and approve you.</p>${err}
+    <div class="actions"><button class="btn" data-act="recheck">Check again</button><button class="btn ghost" data-act="signout">Sign out</button></div></div></section>`;
+  return '<div class="banner">Loading…</div>';
+}
+/* One member touches three records: the public list, the exco-only list, and the Force No. sign-in index. */
+function memberWrites(bt,id,m,old){
+  const mid=id||db.collection('ids').doc().id;
+  bt.set(db.doc('public/members'),{m:{[mid]:{name:m.name,rank:m.rank||'',command:m.command||'',status:m.status,dod:m.dod||'',bday:String(m.dob||'').slice(5)}}},{merge:true});
+  bt.set(db.doc('private/members'),{m:{[mid]:{forceNo:m.forceNo||'',dob:m.dob||'',note:m.note||'',phone:m.phone||''}}},{merge:true});
+  const was=old&&old.status!=='deceased'?norm(old.forceNo):'', cur=m.status!=='deceased'?norm(m.forceNo):'';
+  if(was.length>=3&&was!==cur) bt.delete(db.doc('roster/'+was));
+  if(cur.length>=3) bt.set(db.doc('roster/'+cur),{mid});
+  return mid;
+}
+function menuSheet(){
+  const u=auth.currentUser||{};
+  openSheet(`<h2>Exco menu</h2><p class="note">Signed in as ${esc(u.email)}</p>
+    <div class="stack"><button class="btn ghost" type="button" data-act="course-edit">Course name</button>
+    <button class="btn ghost" type="button" data-act="admins">Manage excos${S.requests.length?' ('+S.requests.length+' waiting)':''}</button>
+    <button class="btn ghost" type="button" data-act="backup">Download records</button>
+    <button class="btn danger" type="button" data-act="signout">Sign out</button></div>
+    <div class="actions"><button class="btn ghost" type="button" data-act="sheet-close">Close</button></div>`);
+}
+function adminsSheet(){
+  const me=(auth.currentUser||{}).uid, who=x=>`<span class="row-main"><b>${esc(x.name||'No name given')}</b><small>${esc(x.email)}</small></span>`;
+  openSheet(`<h2>Manage excos</h2>
+    <h3>Waiting for approval</h3>
+    <div class="panel">${S.requests.length?S.requests.map(r=>`<div class="row">${who(r)}<span class="actions"><button class="btn small" type="button" data-act="admin-ok" data-id="${esc(r.id)}">Approve</button><button class="btn small ghost" type="button" data-act="admin-no" data-id="${esc(r.id)}">Decline</button></span></div>`).join(''):empty('No requests','A new exco taps Exco login, then Create exco account. Their request shows here.')}</div>
+    <p class="note">Approve only people you know. Confirm the email with them first.</p>
+    <h3>Excos who can edit</h3>
+    <div class="panel">${S.admins.map(a=>`<div class="row">${who(a)}${a.id===me?'<span class="pill type">You</span>':`<button class="btn small danger" type="button" data-act="admin-del" data-id="${esc(a.id)}">Remove</button>`}</div>`).join('')}</div>
+    <div class="actions"><button class="btn ghost" type="button" data-act="sheet-close">Close</button></div>`);
+}
+const main=$('#main'), sheet=$('#sheet');
+
+/* ---------- figures ---------- */
+const living=()=>S.members.filter(m=>m.status!=='deceased');
+const memberById=id=>S.members.find(m=>m.id===id);
+function stats(a){
+  const paid=Object.values(a.paid||{});
+  const raised=paid.reduce((t,p)=>t+(Number(p.a)||0),0);
+  const expected=(a.status==='closed'&&a.expected)?a.expected:living().length;
+  const rate=expected?Math.min(100,Math.round(paid.length/expected*100)):0;
+  const target=Number(a.target)||0;
+  return {raised,count:paid.length,expected,rate,target,money:target?Math.min(100,Math.round(raised/target*100)):0};
+}
+function totals(){
+  const st=S.appeals.map(stats);
+  const totalIn=st.reduce((t,s)=>t+s.raised,0);
+  const totalOut=S.payouts.reduce((t,p)=>t+(Number(p.amount)||0),0);
+  const rated=st.filter(s=>s.expected>0);
+  const rate=rated.length?Math.round(rated.reduce((t,s)=>t+s.rate,0)/rated.length):null;
+  const withTarget=st.filter(s=>s.target>0);
+  return {totalIn,totalOut,balance:totalIn-totalOut,rate,met:withTarget.filter(s=>s.raised>=s.target).length,withTarget:withTarget.length};
+}
+const sameName=(a,b)=>{ a=String(a||'').trim().toLowerCase(); return a!==''&&a===String(b||'').trim().toLowerCase(); };
+const helpedFor=m=>S.appeals.filter(a=>sameName(a.beneficiary,m.name)).sort((a,b)=>String(b.opened||'').localeCompare(String(a.opened||'')));
+function helpTag(m){
+  const r=[...new Set(helpedFor(m).map(a=>a.reason||'Support'))];
+  return r.length?`<span class="pill helped">Contributed for: ${esc(r.join(', '))}</span>`:'';
+}
+const dayMonth=md=>{ const [mo,da]=String(md||'').split('-').map(Number); return mo&&da?new Date(2000,mo-1,da).toLocaleDateString('en-GB',{day:'numeric',month:'long'}):''; };
+const bdayOf=m=>m.bday||String(m.dob||'').slice(5);
+function upcoming(){
+  const now=new Date(), y=now.getFullYear(), t0=new Date(y,now.getMonth(),now.getDate()), out=[];
+  const next=md=>{ const [mo,da]=String(md).split('-').map(Number); if(!mo||!da) return null; let d=new Date(y,mo-1,da); if(d<t0) d=new Date(y+1,mo-1,da); return (d-t0)<=30*864e5?d:null; };
+  for(const m of S.members){
+    if(m.status==='deceased'){ const d=m.dod&&next(m.dod.slice(5)), yrs=d?d.getFullYear()-Number(m.dod.slice(0,4)):0; if(d&&yrs>0) out.push({d,m,text:'Remembrance · '+yrs+(yrs===1?' year':' years')+' since passing',cls:'closed',today:+d===+t0}); }
+    else { const d=bdayOf(m)&&next(bdayOf(m)); if(d) out.push({d,m,text:'Birthday',cls:'type',today:+d===+t0}); }
+  }
+  return out.sort((a,b)=>a.d-b.d);
+}
+const EXCO_ROLES=['Chairman','Vice Chairman','Secretary','Assistant Secretary','Treasurer','Financial Secretary','Welfare Officer','PRO'];
+const sortedExcos=()=>[...S.excos].sort((a,b)=>{ const r=x=>{ const i=EXCO_ROLES.findIndex(v=>v.toLowerCase()===String(x.role||'').trim().toLowerCase()); return i<0?99:i; }; return r(a)-r(b)||String(a.name||'').localeCompare(String(b.name||'')); });
+function myRecord(){
+  const m=!S.admin&&S.me&&memberById(S.me); if(!m) return '';
+  const mine=S.appeals.map(a=>({a,p:(a.paid||{})[m.id]}));
+  const total=mine.reduce((t,x)=>t+(x.p?Number(x.p.a)||0:0),0), n=mine.filter(x=>x.p).length;
+  const owing=mine.filter(x=>!x.p&&x.a.status!=='closed'&&!sameName(x.a.beneficiary,m.name)).map(x=>x.a);
+  return `<section class="panel"><div class="pad stack"><h3>My record</h3>
+    <div class="between" style="color:inherit"><h2>${esc([m.rank,m.name].filter(Boolean).join(' '))}</h2><button class="link" data-act="member" data-id="${esc(m.id)}">My payments</button></div>
+    <p class="note">You have contributed ${naira(total)} in ${n} of ${S.appeals.length} appeals.</p></div>
+    ${owing.length?owing.map(a=>`<button class="row" data-act="appeal" data-id="${esc(a.id)}"><span class="row-main"><b>${esc(a.title)}</b><small>${[Number(a.perMember)?naira(a.perMember)+' per member':'',a.deadline?'Closes '+fdate(a.deadline):''].filter(Boolean).join(' · ')}</small></span><span class="pill unpaid">Not paid</span></button>`).join(''):'<div class="row"><span class="row-main"><small>You are up to date on every open appeal.</small></span><span class="pill paid">Up to date</span></div>'}
+  </section>`;
+}
+function reminderText(a){
+  const paid=a.paid||{}, owing=living().filter(m=>!paid[m.id]&&!sameName(a.beneficiary,m.name)).sort(byName);
+  const L=['*'+a.title+'*'], sub=[a.beneficiary?'For '+a.beneficiary:'',a.reason||''].filter(Boolean).join(' - ');
+  if(sub) L.push(sub);
+  if(Number(a.perMember)) L.push('Amount: '+naira(a.perMember)+' per member');
+  if(a.deadline) L.push('Closes: '+fdate(a.deadline));
+  if(a.payNo||a.payBank) L.push('Pay to: '+[a.payNo,a.payBank,a.payName].filter(Boolean).join(', '));
+  L.push('','Yet to pay ('+owing.length+'):',...owing.map((m,i)=>(i+1)+'. '+[m.rank,m.name].filter(Boolean).join(' ')));
+  L.push('','Thank you to the '+Object.keys(paid).length+' who have paid.');
+  return L.join('\n');
+}
+const csv=rows=>'﻿'+rows.map(r=>r.map(c=>{ c=String(c??''); return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c; }).join(',')).join('\r\n');
+function backupFile(kind){
+  const ms=[...S.members].sort(byName), as=[...S.appeals].sort((a,b)=>String(a.opened||'').localeCompare(String(b.opened||'')));
+  if(kind==='members') return csv([['Name','Rank','Force No.','Command','Status','Date of birth','Date of death','Phone','Contributed for','Own contributions','Note'],
+    ...ms.map(m=>[m.name,m.rank,m.forceNo,m.command,STATUS[m.status]||'Serving',m.dob,m.dod,(S.contacts[m.id]||{}).phone,helpedFor(m).map(a=>a.reason).join('; '),as.reduce((t,a)=>t+(Number(((a.paid||{})[m.id]||{}).a)||0),0),m.note])]);
+  if(kind==='contributions') return csv([['Name','Rank','Force No.',...as.map(a=>a.title+' ('+(a.opened||'')+')'),'Total'],
+    ...ms.map(m=>{ const v=as.map(a=>Number(((a.paid||{})[m.id]||{}).a)||0); return [m.name,m.rank,m.forceNo,...v.map(x=>x||''),v.reduce((t,x)=>t+x,0)]; }),
+    ['Total raised','','',...as.map(a=>stats(a).raised),totals().totalIn]]);
+  const t=totals();
+  return csv([['Date','Type','Description','In','Out'],
+    ...[...as.map(a=>[a.opened,'Contributions',a.title+(a.beneficiary?' (for '+a.beneficiary+')':''),stats(a).raised,'']),
+        ...S.payouts.map(p=>[p.date,'Payout','Paid to '+p.recipient+(p.purpose?' - '+p.purpose:''),'',Number(p.amount)||0])].sort((a,b)=>String(a[0]||'').localeCompare(String(b[0]||''))),
+    ['','','Totals',t.totalIn,t.totalOut],['','','Balance in hand',t.balance,'']]);
+}
+const byName=(a,b)=>String(a.name||'').localeCompare(String(b.name||''));
+const byDateDesc=k=>(a,b)=>String(b[k]||'').localeCompare(String(a[k]||''));
+
+/* ---------- shared pieces ---------- */
+function banner(){
+  if(S.problem==='slow') return '<div class="banner">The records can’t be reached yet. Still trying.</div>';
+  if(S.problem==='error') return '<div class="banner">The records are unavailable right now. Open the page again later.</div>';
+  if(S.got.size<S.need) return '<div class="banner">Loading records…</div>';
+  if(!S.admin) return '<div class="banner publish"><span>You are signed in with your Force No.</span><button class="link" data-act="lock">Lock</button></div>';
+  const missing=S.members.filter(m=>m.status!=='deceased'&&norm(m.forceNo).length<3).length;
+  return (S.requests.length?`<div class="banner publish"><span>${S.requests.length===1?'1 person is':S.requests.length+' people are'} asking to become an exco.</span><button class="btn small" data-act="admins">Review</button></div>`:'')
+    +(missing?`<div class="banner">${missing===1?'1 living member has':missing+' living members have'} no Force No. and cannot sign in.</div>`:'');
+}
+const addBtn=(act,label)=>S.admin?`<button class="btn small" data-act="${act}">${label}</button>`:'';
+const empty=(title,text)=>`<div class="empty"><b>${title}</b>${text}</div>`;
+function memberLine(m){
+  const bits=[m.rank,m.forceNo,m.command].filter(Boolean).map(esc);
+  if(m.status==='deceased'&&m.dod) bits.push('Died '+fdate(m.dod));
+  return bits.join(' · ');
+}
+function appealCard(a){
+  const s=stats(a);
+  return `<button class="row" data-act="appeal" data-id="${esc(a.id)}"><span class="row-main" style="gap:7px">
+    <span class="between" style="color:inherit;font-size:inherit"><b>${esc(a.title)}</b><span class="pill ${a.status==='closed'?'closed':'open'}">${a.status==='closed'?'Closed':'Open'}</span></span>
+    <small>${[a.beneficiary?'For '+esc(a.beneficiary):'',esc(a.reason||''),a.deadline?'Closes '+fdate(a.deadline):''].filter(Boolean).join(' · ')}</small>
+    <span class="bar"><i style="width:${s.target?s.money:s.rate}%"></i></span>
+    <span class="between"><span class="num">${naira(s.raised)}${s.target?' of '+naira(s.target):' raised'}</span><span class="num">${s.count} of ${s.expected} paid · ${s.rate}%</span></span>
+  </span></button>`;
+}
+function noticeItem(n){
+  return `<div class="row" style="align-items:flex-start"><span class="row-main" style="gap:6px">
+    <span class="between"><span class="pill type">${esc(n.type||'Notice')}</span><span>${n.pinned?'Pinned · ':''}${fdate(n.posted)}</span></span>
+    <b>${esc(n.title)}</b>
+    ${n.eventDate?`<small>Date: ${fdate(n.eventDate)}${n.venue?' · '+esc(n.venue):''}</small>`:(n.venue?`<small>${esc(n.venue)}</small>`:'')}
+    ${n.body?`<p class="notice-body">${esc(n.body)}</p>`:''}
+    ${S.admin?`<span class="actions"><button class="link" data-act="notice-edit" data-id="${esc(n.id)}">Edit</button></span>`:''}
+  </span></div>`;
+}
+const sortedNotices=()=>[...S.notices].sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||String(b.posted||'').localeCompare(String(a.posted||'')));
+
+/* ---------- views ---------- */
+const views={
+  home:{page(){
+    const t=totals(), m=S.members, c=k=>m.filter(x=>x.status===k).length;
+    const open=S.appeals.filter(a=>a.status!=='closed').sort(byDateDesc('opened'));
+    const notes=sortedNotices().slice(0,3), dates=upcoming(), excos=sortedExcos();
+    const past=S.appeals.filter(a=>a.status==='closed').sort(byDateDesc('opened'));
+    return banner()+myRecord()+`
+    <section class="panel">
+      <div class="pad stack"><h3>Account balance</h3><div class="big">${naira(t.balance)}</div>
+        <div class="between"><span>Contributed <b class="num in">${naira(t.totalIn)}</b></span><span>Paid out <b class="num out">${naira(t.totalOut)}</b></span></div></div>
+      <div class="figures"><div><b>${m.length}</b><span>Members</span></div><div><b>${c('deceased')}</b><span>Deceased</span></div><div><b>${t.rate===null?'–':t.rate+'%'}</b><span>Success rate</span></div></div>
+    </section>
+    <section class="stack"><div class="head"><h2>Open appeals</h2><a class="link" href="#contributions" style="text-decoration:none">All appeals</a></div>
+      <div class="panel">${open.length?open.map(appealCard).join(''):empty('No open appeal','When a need arises, the excos open an appeal and it shows here.')}</div></section>
+    <section class="stack"><div class="head"><h2>Previous contributions</h2>${past.length>5?'<a class="link" href="#contributions" style="text-decoration:none">All '+past.length+'</a>':''}</div>
+      <div class="panel">${past.length?past.slice(0,5).map(appealCard).join(''):empty('None yet','When an appeal is closed it is kept here, with who it was for and how much was raised.')}</div></section>
+    <section class="stack"><div class="head"><h2>Birthdays and remembrance</h2></div>
+      <div class="panel">${dates.length?dates.map(x=>`<div class="row"><span class="row-main"><b>${esc([x.m.rank,x.m.name].filter(Boolean).join(' '))}</b><small>${x.text}</small></span><span class="pill ${x.cls}">${x.today?'Today':x.d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span></div>`).join(''):empty('Nothing in the next 30 days',S.admin?'Add dates of birth in the register and birthdays will show here.':'Birthdays and remembrance days show here as they come up.')}</div></section>
+    <section class="stack"><div class="head"><h2>Latest notices</h2><a class="link" href="#notices" style="text-decoration:none">All notices</a></div>
+      <div class="panel">${notes.length?notes.map(noticeItem).join(''):empty('No notices yet','Meetings, promotions, greetings and contribution calls are posted here.')}</div></section>
+    <section class="stack"><div class="head"><h2>Excos</h2>${addBtn('exco-new','Add exco')}</div>
+      <div class="panel">${excos.length?excos.map(e=>`<div class="row"><span class="row-main"><b>${esc(e.role)}</b><small>${esc(e.name)}</small>${S.admin?`<span class="actions"><button class="link" data-act="exco-edit" data-id="${esc(e.id)}">Edit</button></span>`:''}</span><span class="num sel">${esc(e.phone)}</span></div>`).join(''):empty('No excos listed yet','The chairman, secretary, treasurer and other officers are listed here with their phone numbers.')}</div></section>`;
+  }},
+  members:{page(){
+    const n=k=>k==='all'?S.members.length:S.members.filter(m=>m.status===k).length;
+    const chip=(k,l)=>`<button class="chip" data-act="filter" data-id="${k}" aria-pressed="${S.filter===k}">${l} ${n(k)}</button>`;
+    return banner()+`<div class="head"><h2>Members register</h2>${S.admin?'<span class="actions"><button class="btn small ghost" data-act="import">Import list</button><button class="btn small" data-act="member-new">Add member</button></span>':''}</div>
+    <input class="search" id="q-members" type="search" placeholder="Search name, rank, Force No. or command" value="${esc(S.q)}" aria-label="Search members">
+    <div class="chips">${chip('all','All')}${chip('serving','Serving')}${chip('retired','Retired')}${chip('deceased','Deceased')}</div>
+    <div class="panel" id="list">${this.list()}</div>`;
+  },list(){
+    const q=S.q.trim().toLowerCase();
+    const rows=S.members.filter(m=>(S.filter==='all'||m.status===S.filter)&&(!q||[m.name,m.rank,m.forceNo,m.command].join(' ').toLowerCase().includes(q))).sort(byName);
+    if(!S.members.length) return empty('No members yet','The excos add each course mate here with rank, Force No. and status.');
+    if(!rows.length) return empty('No match','Try another name or clear the filter.');
+    return rows.map(m=>`<button class="row" data-act="member" data-id="${esc(m.id)}"><span class="row-main"><b>${esc(m.name)}</b><small>${memberLine(m)}</small>${helpTag(m)}</span><span class="pill ${esc(m.status||'serving')}">${STATUS[m.status]||'Serving'}</span></button>`).join('');
+  }},
+  contributions:{page(){
+    const a=S.appeal&&S.appeals.find(x=>x.id===S.appeal);
+    if(a) return this.detail(a);
+    const t=totals(), all=[...S.appeals].sort(byDateDesc('opened'));
+    return banner()+`<div class="head"><h2>Contribution appeals</h2>${addBtn('appeal-new','New appeal')}</div>
+    <section class="panel"><div class="figures" style="border-top:0"><div><b>${all.length}</b><span>Appeals</span></div><div><b>${t.rate===null?'–':t.rate+'%'}</b><span>Members paying</span></div><div><b>${t.withTarget?t.met+' of '+t.withTarget:'–'}</b><span>Targets met</span></div></div></section>
+    <p class="note">Success rate is the share of living members who paid, averaged over all appeals.</p>
+    <div class="panel">${all.length?all.map(appealCard).join(''):empty('No appeals yet','Each time a need arises, open an appeal and tick off members as they pay.')}</div>`;
+  },detail(a){
+    const s=stats(a);
+    return `<button class="link" data-act="appeal-back" style="align-self:flex-start">‹ All appeals</button>
+    <section class="panel"><div class="pad stack">
+      <div class="between" style="color:inherit"><h2>${esc(a.title)}</h2><span class="pill ${a.status==='closed'?'closed':'open'}">${a.status==='closed'?'Closed':'Open'}</span></div>
+      <p class="note">${[a.beneficiary?'For '+esc(a.beneficiary):'',esc(a.reason||''),a.opened?'Opened '+fdate(a.opened):'',a.deadline?'Closes '+fdate(a.deadline):'',Number(a.perMember)?naira(a.perMember)+' per member':''].filter(Boolean).join(' · ')}</p>
+      <div class="bar"><i style="width:${s.target?s.money:s.rate}%"></i></div>
+      <div class="between"><span class="num">${naira(s.raised)}${s.target?' of '+naira(s.target)+' ('+s.money+'%)':' raised'}</span><span class="num">${s.count} of ${s.expected} paid · ${s.rate}% success</span></div>
+      ${a.payNo||a.payBank?`<div class="banner publish"><span>Pay to <b class="num sel">${esc(a.payNo)}</b>${[a.payBank,a.payName].filter(Boolean).map(x=>' \u00B7 '+esc(x)).join('')}</span>${a.payNo?`<button class="btn small ghost" data-act="copy" data-text="${esc(a.payNo)}">Copy number</button>`:''}</div>`:''}
+      ${S.admin?`<div class="actions"><button class="btn small" data-act="bulkpay" data-id="${esc(a.id)}">Bulk payment</button><button class="btn small ghost" data-act="reminder" data-id="${esc(a.id)}">Reminder message</button><button class="btn small ghost" data-act="appeal-edit" data-id="${esc(a.id)}">Edit</button><button class="btn small ghost" data-act="appeal-toggle" data-id="${esc(a.id)}">${a.status==='closed'?'Reopen':'Close appeal'}</button></div>`:''}
+    </div></section>
+    <input class="search" id="q-pay" type="search" placeholder="Search members" value="${esc(S.payQ)}" aria-label="Search members in this appeal">
+    <div class="chips">${[['all','All'],['unpaid','Not paid'],['paid','Paid']].map(([k,l])=>`<button class="chip" data-act="payfilter" data-id="${k}" aria-pressed="${S.payFilter===k}">${l}</button>`).join('')}</div>
+    ${S.admin?'<p class="note">Tap a member to record or change a payment.</p>':''}
+    <div class="panel" id="list">${this.list()}</div>`;
+  },list(){
+    const a=S.appeals.find(x=>x.id===S.appeal); if(!a) return '';
+    const paid=a.paid||{}, q=S.payQ.trim().toLowerCase();
+    const rows=S.members.filter(m=>(m.status!=='deceased'||paid[m.id])&&(S.payFilter==='all'||(S.payFilter==='paid')===!!paid[m.id])&&(!q||[m.name,m.rank,m.forceNo].join(' ').toLowerCase().includes(q))).sort(byName);
+    if(!S.members.length) return empty('No members yet','Add members in the register first, then record who has paid.');
+    if(!rows.length) return empty(S.payFilter==='unpaid'&&!q?'Everyone has paid':'No match',S.payFilter==='unpaid'&&!q?'No member is owing on this appeal.':'Try another name or filter.');
+    const tag=S.admin?'button':'div';
+    return rows.map(m=>{const p=paid[m.id];
+      return `<${tag} class="row" ${S.admin?`data-act="pay" data-id="${esc(m.id)}"`:''}><span class="row-main"><b>${esc(m.name)}</b><small>${[esc(m.rank||''),p&&p.d?'Paid '+fdate(p.d):''].filter(Boolean).join(' · ')}</small></span>${p?`<span class="pill paid num">${naira(p.a)}</span>`:'<span class="pill unpaid">Not paid</span>'}</${tag}>`;}).join('');
+  }},
+  account:{page(){
+    const t=totals();
+    const lines=[...S.appeals.map(a=>({date:a.opened,label:'Contributions: '+a.title,sub:stats(a).count+' members paid',amt:stats(a).raised})).filter(l=>l.amt>0),
+      ...S.payouts.map(p=>({date:p.date,label:'Paid to '+p.recipient,sub:p.purpose,amt:-(Number(p.amount)||0),id:p.id}))].sort(byDateDesc('date'));
+    return banner()+`<div class="head"><h2>Account</h2>${S.admin?'<span class="actions"><button class="btn small ghost" data-act="backup">Download records</button><button class="btn small" data-act="payout-new">Record payout</button></span>':''}</div>
+    <section class="panel"><div class="pad stack"><h3>Balance in hand</h3><div class="big">${naira(t.balance)}</div></div>
+      <div class="figures" style="grid-template-columns:1fr 1fr"><div><b class="in">${naira(t.totalIn)}</b><span>Total contributed</span></div><div><b class="out">${naira(t.totalOut)}</b><span>Total paid out</span></div></div></section>
+    <h3>Money in and out</h3>
+    <div class="panel">${lines.length?lines.map(l=>{const tag=l.id&&S.admin?'button':'div';
+      return `<${tag} class="row" ${l.id&&S.admin?`data-act="payout-edit" data-id="${esc(l.id)}"`:''}><span class="row-main"><b>${esc(l.label)}</b><small>${[fdate(l.date),esc(l.sub||'')].filter(Boolean).join(' · ')}</small></span><b class="num ${l.amt<0?'out':'in'}">${l.amt<0?'−':'+'}${naira(Math.abs(l.amt))}</b></${tag}>`;}).join(''):empty('Nothing recorded yet','Payments into appeals and payouts to members will be listed here.')}</div>`;
+  }},
+  notices:{page(){
+    const all=sortedNotices();
+    return banner()+`<div class="head"><h2>Notice board</h2>${addBtn('notice-new','Post notice')}</div>
+    <div class="panel">${all.length?all.map(noticeItem).join(''):empty('No notices yet','Contribution calls, meetings, promotions and season’s greetings are posted here.')}</div>`;
+  }}
+};
+
+function render(){
+  const gate=S.screen!=='app'; $('nav').hidden=gate;
+  if(gate){ if(main.dataset.screen!==S.screen){ main.dataset.screen=S.screen; main.innerHTML=gateView(); } return; }
+  main.dataset.screen='app';
+  const a=document.activeElement, v=views[S.view];
+  if(a&&a.tagName==='INPUT'&&main.contains(a)&&v.list){ const l=$('#list'); if(l){ l.innerHTML=v.list(); return; } }
+  main.innerHTML=v.page();
+}
+function renderHead(){
+  $('#course-name').textContent=S.meta.name||'NPF Course 55';
+  $('#course-sub').textContent=S.meta.detail||'Register, contributions and notices';
+  const b=$('#role-badge'); b.hidden=S.screen!=='app'; b.disabled=!S.admin;
+  b.textContent=S.admin?'Exco menu':'Member';
+}
+function route(){
+  const h=location.hash.slice(1); S.view=VIEWS.includes(h)?h:'home';
+  if(S.view!=='contributions') S.appeal=null;
+  document.querySelectorAll('nav a').forEach(a=>a.dataset.nav===S.view?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));
+  if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();
+  render(); window.scrollTo(0,0);
+}
+
+/* ---------- sheets (forms) ---------- */
+function openSheet(html,onSubmit){
+  sheet.innerHTML=`<form class="sheet" id="sheet-form" novalidate>${html}<p class="err" id="sheet-err" hidden></p></form>`;
+  sheet._submit=onSubmit||null;
+  if(!sheet.open) sheet.showModal();
+}
+const closeSheet=()=>{ if(sheet.open) sheet.close(); };
+function fail(e){
+  const el=$('#sheet-err'); if(!el) return;
+  el.textContent=e&&e.code==='permission-denied'?'Only excos can change these records.':e&&e.code==='resource-exhausted'?'The free daily limit has been reached. Try again tomorrow.':(e&&e.userMessage)||'Could not save. Check your connection and try again.';
+  el.hidden=false;
+}
+const sheetButtons=(saveLabel,delAct,id)=>`<div class="actions"><button class="btn" type="submit">${saveLabel}</button><button class="btn ghost" type="button" data-act="sheet-close">Cancel</button>${delAct?`<button class="btn danger" type="button" data-act="${delAct}" data-id="${esc(id)}" style="margin-left:auto">Delete</button>`:''}</div>`;
+const opt=(v,cur,l)=>`<option value="${esc(v)}"${v===cur?' selected':''}>${esc(l||v)}</option>`;
+const need=(v,msg)=>{ if(!String(v||'').trim()) throw {userMessage:msg}; return String(v).trim(); };
+
+function memberForm(id){
+  const m=id?memberById(id)||{}:{}, c=id?S.contacts[id]||{}:{};
+  openSheet(`<h2>${id?'Edit member':'Add member'}</h2>
+    <label>Full name<input id="f-name" name="name" value="${esc(m.name)}" autocomplete="off"></label>
+    <div class="two"><label>Rank<input id="f-rank" name="rank" list="ranks" value="${esc(m.rank)}"><datalist id="ranks">${RANKS.map(r=>`<option value="${r}">`).join('')}</datalist></label>
+    <label>Force No.<input id="f-force" name="forceNo" value="${esc(m.forceNo)}" autocomplete="off"></label></div>
+    <label>Command or formation<input id="f-command" name="command" value="${esc(m.command)}"></label>
+    <label>Date of birth<input id="f-dob" name="dob" type="date" value="${esc(m.dob)}"></label>
+    <div class="two"><label>Status<select id="f-status" name="status">${Object.entries(STATUS).map(([k,l])=>opt(k,m.status||'serving',l)).join('')}</select></label>
+    <label id="dod-wrap" ${m.status==='deceased'?'':'hidden'}>Date of death<input id="f-dod" name="dod" type="date" value="${esc(m.dod)}"></label></div>
+    <h3>Seen by excos only</h3>
+    <label>Phone<input id="f-phone" name="phone" type="tel" value="${esc(c.phone)}"></label>
+    <label>Note<textarea id="f-note" name="note">${esc(m.note)}</textarea></label>
+    ${sheetButtons('Save member',id?'member-del':'',id)}`,
+  async f=>{
+    const name=need(f.name,'Enter the member’s name.');
+    const bt=db.batch();
+    memberWrites(bt,id,{name,rank:f.rank.trim(),forceNo:f.forceNo.trim(),command:f.command.trim(),status:f.status,dob:f.dob||'',dod:f.status==='deceased'?f.dod:'',note:f.note.trim(),phone:f.phone.trim()},id?m:null);
+    await bt.commit();
+  });
+}
+function memberSheet(id){
+  const m=memberById(id); if(!m) return;
+  const c=S.contacts[id]||{}, helped=helpedFor(m);
+  const hist=[...S.appeals].sort(byDateDesc('opened')).map(a=>({a,p:(a.paid||{})[id]}));
+  const total=hist.reduce((t,h)=>t+(h.p?Number(h.p.a)||0:0),0), paidN=hist.filter(h=>h.p).length;
+  openSheet(`<div class="between" style="color:inherit"><h2>${esc(m.name)}</h2><span class="pill ${esc(m.status||'serving')}">${STATUS[m.status]||'Serving'}</span></div>
+    ${helpTag(m)}
+    <dl>${m.rank?`<dt>Rank</dt><dd>${esc(m.rank)}</dd>`:''}${m.forceNo?`<dt>Force No.</dt><dd>${esc(m.forceNo)}</dd>`:''}${m.command?`<dt>Command</dt><dd>${esc(m.command)}</dd>`:''}${bdayOf(m)?`<dt>Birthday</dt><dd>${dayMonth(bdayOf(m))}</dd>`:''}${m.status==='deceased'&&m.dod?`<dt>Died</dt><dd>${fdate(m.dod)}</dd>`:''}${m.note?`<dt>Note</dt><dd>${esc(m.note)}</dd>`:''}
+    ${S.admin?`${c.phone?`<dt>Phone</dt><dd>${esc(c.phone)}</dd>`:''}`:''}</dl>
+    ${helped.length?`<h3>Members contributed for ${esc(m.name)}</h3><div class="panel">${helped.map(a=>`<div class="row"><span class="row-main"><b>${esc(a.title)}</b><small>${[esc(a.reason||''),fdate(a.opened)].filter(Boolean).join(' · ')}</small></span><b class="num in">${naira(stats(a).raised)}</b></div>`).join('')}</div>`:''}
+    <h3>Own contributions: ${naira(total)} in ${paidN} of ${hist.length} appeals</h3>
+    <div class="panel">${hist.length?hist.map(h=>`<div class="row"><span class="row-main"><b>${esc(h.a.title)}</b><small>${fdate(h.a.opened)}</small></span>${h.p?`<span class="pill paid num">${naira(h.p.a)}</span>`:'<span class="pill unpaid">Not paid</span>'}</div>`).join(''):empty('No appeals yet','')}</div>
+    <div class="actions">${S.admin?`<button class="btn" type="button" data-act="member-edit" data-id="${esc(id)}">Edit</button>`:''}<button class="btn ghost" type="button" data-act="sheet-close">Close</button></div>`);
+}
+function appealForm(id){
+  const a=id?S.appeals.find(x=>x.id===id)||{}:{};
+  const last=id?{}:[...S.appeals].sort(byDateDesc('opened'))[0]||{};
+  openSheet(`<h2>${id?'Edit appeal':'New appeal'}</h2>
+    <label>What is it for?<input id="a-title" name="title" value="${esc(a.title)}" placeholder="e.g. Burial support for a course mate"></label>
+    <div class="two"><label>Beneficiary<input id="a-ben" name="beneficiary" list="names" value="${esc(a.beneficiary)}"><datalist id="names">${S.members.map(m=>`<option value="${esc(m.name)}">`).join('')}</datalist></label>
+    <label>Reason<select id="a-reason" name="reason">${REASONS.map(r=>opt(r,a.reason||REASONS[0])).join('')}</select></label></div>
+    <div class="two"><label>Target amount (₦)<input id="a-target" name="target" type="number" inputmode="numeric" min="0" value="${esc(a.target||'')}"></label>
+    <label>Amount per member (₦)<input id="a-per" name="perMember" type="number" inputmode="numeric" min="0" value="${esc(a.perMember||'')}"></label></div>
+    <div class="two"><label>Opened<input id="a-opened" name="opened" type="date" value="${esc(a.opened||today())}"></label><label>Closing date<input id="a-deadline" name="deadline" type="date" value="${esc(a.deadline)}"></label></div>
+    <h3>Where members pay</h3>
+    <label>Bank<input id="a-bank" name="payBank" value="${esc(a.payBank??last.payBank)}"></label>
+    <div class="two"><label>Account name<input id="a-accname" name="payName" value="${esc(a.payName??last.payName)}"></label><label>Account number<input id="a-accno" name="payNo" inputmode="numeric" value="${esc(a.payNo??last.payNo)}"></label></div>
+    ${sheetButtons('Save appeal',id?'appeal-del':'',id)}`,
+  async f=>{
+    const body={title:need(f.title,'Say what the appeal is for.'),beneficiary:f.beneficiary.trim(),reason:f.reason,target:Number(f.target)||0,perMember:Number(f.perMember)||0,opened:f.opened||today(),deadline:f.deadline,payBank:f.payBank.trim(),payName:f.payName.trim(),payNo:f.payNo.trim()};
+    if(id) await db.doc('appeals/'+id).update(body);
+    else await db.collection('appeals').doc().set({...body,status:'open',paid:{}});
+  });
+}
+function paySheet(mid){
+  const a=S.appeals.find(x=>x.id===S.appeal), m=memberById(mid); if(!a||!m) return;
+  const p=(a.paid||{})[mid];
+  openSheet(`<h2>${esc(m.name)}</h2><p class="note">${esc(a.title)}</p>
+    <div class="two"><label>Amount paid (₦)<input id="p-amt" name="amount" type="number" inputmode="numeric" min="0" value="${esc(p?p.a:(a.perMember||''))}"></label>
+    <label>Date paid<input id="p-date" name="date" type="date" value="${esc(p?p.d:today())}"></label></div>
+    ${sheetButtons(p?'Update payment':'Record payment',p?'pay-del':'',mid)}`,
+  async f=>{
+    const amt=Number(f.amount); if(!(amt>0)) throw {userMessage:'Enter the amount paid.'};
+    await db.doc('appeals/'+a.id).update({['paid.'+mid]:{a:amt,d:f.date||today()}});
+  });
+}
+function payoutForm(id){
+  const p=id?S.payouts.find(x=>x.id===id)||{}:{};
+  openSheet(`<h2>${id?'Edit payout':'Record payout'}</h2>
+    <label>Paid to<input id="o-rec" name="recipient" list="names2" value="${esc(p.recipient)}"><datalist id="names2">${S.members.map(m=>`<option value="${esc(m.name)}">`).join('')}</datalist></label>
+    <div class="two"><label>Amount (₦)<input id="o-amt" name="amount" type="number" inputmode="numeric" min="0" value="${esc(p.amount||'')}"></label><label>Date<input id="o-date" name="date" type="date" value="${esc(p.date||today())}"></label></div>
+    <label>From which appeal?<select id="o-appeal" name="appealId">${opt('',p.appealId||'','Not tied to an appeal')}${S.appeals.map(a=>opt(a.id,p.appealId||'',a.title)).join('')}</select></label>
+    <label>Purpose<input id="o-purpose" name="purpose" value="${esc(p.purpose)}" placeholder="e.g. Handed to the family"></label>
+    ${sheetButtons('Save payout',id?'payout-del':'',id)}`,
+  async f=>{
+    const amt=Number(f.amount); if(!(amt>0)) throw {userMessage:'Enter the amount paid out.'};
+    const body={recipient:need(f.recipient,'Say who received the money.'),amount:amt,date:f.date||today(),appealId:f.appealId,purpose:f.purpose.trim()};
+    await (id?db.doc('payouts/'+id):db.collection('payouts').doc()).set(body);
+  });
+}
+function noticeForm(id){
+  const n=id?S.notices.find(x=>x.id===id)||{}:{};
+  openSheet(`<h2>${id?'Edit notice':'Post notice'}</h2>
+    <label>Type<select id="n-type" name="type">${NOTICE_TYPES.map(t=>opt(t,n.type||NOTICE_TYPES[0])).join('')}</select></label>
+    <label>Headline<input id="n-title" name="title" value="${esc(n.title)}"></label>
+    <label>Message<textarea id="n-body" name="body">${esc(n.body)}</textarea></label>
+    <div class="two"><label>Event date (if any)<input id="n-date" name="eventDate" type="date" value="${esc(n.eventDate)}"></label><label>Venue (if any)<input id="n-venue" name="venue" value="${esc(n.venue)}"></label></div>
+    <label class="check"><input id="n-pin" name="pinned" type="checkbox" ${n.pinned?'checked':''}>Pin to the top</label>
+    ${sheetButtons(id?'Save notice':'Post notice',id?'notice-del':'',id)}`,
+  async f=>{
+    const body={type:f.type,title:need(f.title,'Give the notice a headline.'),body:f.body.trim(),eventDate:f.eventDate,venue:f.venue.trim(),pinned:f.pinned==='on',posted:n.posted||today()};
+    await (id?db.doc('notices/'+id):db.collection('notices').doc()).set(body);
+  });
+}
+function courseForm(){
+  openSheet(`<h2>Course details</h2>
+    <label>Course or set name<input id="c-name" name="name" value="${esc(S.meta.name)}" placeholder="e.g. Course 12/2009 Welfare"></label>
+    <label>Line under the name<input id="c-detail" name="detail" value="${esc(S.meta.detail)}" placeholder="e.g. Police College, Ikeja"></label>
+    ${sheetButtons('Save')}`,
+  async f=>{ await db.doc('meta/course').set({name:f.name.trim(),detail:f.detail.trim()}); });
+}
+
+async function put(bt){
+  try{ await bt.commit(); }
+  catch(e){ if(e&&(e.code==='resource-exhausted'||e.code==='unavailable')){ await new Promise(r=>setTimeout(r,2500)); await bt.commit(); } else throw e; }
+}
+function splitRow(line,delim){
+  if(delim==='\t') return line.split('\t');
+  const out=[]; let cur='', q=false;
+  for(let i=0;i<line.length;i++){ const c=line[i];
+    if(q){ if(c==='"'){ if(line[i+1]==='"'){ cur+='"'; i++; } else q=false; } else cur+=c; }
+    else if(c==='"') q=true; else if(c===','){ out.push(cur); cur=''; } else cur+=c; }
+  out.push(cur); return out;
+}
+function headerKey(h){
+  h=h.toLowerCase();
+  if(h.includes('kin')) return null;
+  if(/phone|mobile|tel|whatsapp/.test(h)) return 'phone';
+  if(/force|ap\s*no|service no/.test(h)) return 'forceNo';
+  if(/death|died/.test(h)) return 'dod';
+  if(/birth|dob/.test(h)) return 'dob';
+  if(h.includes('rank')) return 'rank';
+  if(/command|formation|station|division|posting/.test(h)) return 'command';
+  if(h.includes('status')) return 'status';
+  if(h.includes('name')) return 'name';
+  return null;
+}
+function parseMembers(text){
+  const lines=String(text).split(/\r?\n/).filter(l=>l.trim()); if(!lines.length) return [];
+  const delim=lines[0].includes('\t')?'\t':',';
+  let rows=lines.map(l=>splitRow(l,delim).map(c=>c.trim()));
+  let cols=['name','rank','forceNo','command','status','phone','dob'];
+  const head=rows[0].map(headerKey);
+  if(head.includes('name')){ cols=head; rows=rows.slice(1); }
+  return rows.map(r=>{ const m={}; cols.forEach((k,i)=>{ if(k&&m[k]===undefined) m[k]=r[i]||''; }); return m; }).filter(m=>m.name);
+}
+function parseDob(v){
+  v=String(v||'').trim(); const p2=n=>String(n).padStart(2,'0');
+  let m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if(m) return m[1]+'-'+p2(m[2])+'-'+p2(m[3]);
+  m=v.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/); if(!m) return '';
+  let d=+m[1], mo=+m[2]; if(mo>12&&d<=12){ const t=d; d=mo; mo=t; }
+  return mo>=1&&mo<=12&&d>=1&&d<=31?m[3]+'-'+p2(mo)+'-'+p2(d):'';
+}
+function excoForm(id){
+  const e=id?S.excos.find(x=>x.id===id)||{}:{};
+  openSheet(`<h2>${id?'Edit exco':'Add exco'}</h2>
+    <label>Office<input id="x-role" name="role" list="roles" value="${esc(e.role)}"><datalist id="roles">${EXCO_ROLES.map(r=>`<option value="${r}">`).join('')}</datalist></label>
+    <label>Name<input id="x-name" name="name" list="names3" value="${esc(e.name)}"><datalist id="names3">${S.members.map(m=>`<option value="${esc(m.name)}">`).join('')}</datalist></label>
+    <label>Phone (members will see this)<input id="x-phone" name="phone" type="tel" value="${esc(e.phone)}"></label>
+    ${sheetButtons('Save exco',id?'exco-del':'',id)}`,
+  async f=>{
+    const body={role:need(f.role,'Enter the office, e.g. Chairman.'),name:need(f.name,'Enter the exco’s name.'),phone:f.phone.trim()};
+    await (id?db.doc('excos/'+id):db.collection('excos').doc()).set(body);
+  });
+}
+function matchPayments(text,defAmt,paid){
+  const byNo={}, names=[];
+  for(const m of S.members){ const n=norm(m.forceNo); if(n.length>=3&&!byNo[n]) byNo[n]=m.id; const nm=String(m.name||'').trim().toLowerCase(); if(nm) names.push([nm,m.id]); }
+  names.sort((a,b)=>b[0].length-a[0].length);
+  const out={pay:{},missed:[],already:0,total:0,noAmount:false};
+  for(const line of String(text).split(/\r?\n/)){
+    if(!line.trim()) continue; out.total++;
+    const cells=line.split(/\t|,(?!\d{3}\b)|\s{2,}/).map(c=>c.trim()).filter(Boolean); let id='', amt=0;
+    for(const c of cells){
+      if(!id&&/\d/.test(c)&&byNo[norm(c)]){ id=byNo[norm(c)]; continue; }
+      if(/^[₦N\s\d.,]+$/.test(c)){ const v=Number(c.replace(/[₦N,\s]/g,'')); if(v>0) amt=v; }
+    }
+    if(!id) for(const tok of line.split(/\s+/)){ if(/\d/.test(tok)&&byNo[norm(tok)]){ id=byNo[norm(tok)]; break; } }
+    if(!id){ const low=line.toLowerCase(), hit=names.find(([nm])=>low.includes(nm)); if(hit) id=hit[1]; }
+    if(!id){ out.missed.push(line); continue; }
+    if(paid[id]||out.pay[id]){ out.already++; continue; }
+    if(!(amt||defAmt)){ out.noAmount=true; continue; }
+    out.pay[id]=amt||defAmt;
+  }
+  return out;
+}
+function bulkPaySheet(id){
+  const a=S.appeals.find(x=>x.id===id); if(!a) return;
+  openSheet(`<h2>Bulk payment</h2>
+    <p class="note">${esc(a.title)}. Paste one member per line: a Force No. or a full name. If a line also carries an amount, that amount is used for that member.</p>
+    <label>Members who paid<textarea id="b-rows" name="rows" style="min-height:170px"></textarea></label>
+    <div class="two"><label>Amount each (₦)<input id="b-amt" name="amount" type="number" inputmode="numeric" min="0" value="${esc(a.perMember||'')}"></label><label>Date paid<input id="b-date" name="date" type="date" value="${today()}"></label></div>
+    ${sheetButtons('Mark as paid')}`,
+  async f=>{
+    const cur=S.appeals.find(x=>x.id===id)||a, r=matchPayments(f.rows||'',Number(f.amount)||0,cur.paid||{});
+    if(!r.total) throw {userMessage:'Paste at least one Force No. or name.'};
+    if(r.noAmount) throw {userMessage:'Enter the amount each member paid.'};
+    const add=Object.fromEntries(Object.entries(r.pay).map(([k,v])=>[k,{a:v,d:f.date||today()}])), n=Object.keys(add).length;
+    if(n) await db.doc('appeals/'+id).update(Object.fromEntries(Object.entries(add).map(([k,v])=>['paid.'+k,v])));
+    if(r.missed.length){ $('#b-rows').value=r.missed.join('\n'); throw {userMessage:n+' marked as paid'+(r.already?', '+r.already+' had already paid':'')+'. The lines left in the box were not recognised. Correct them and tap again.'}; }
+  });
+}
+function reminderSheet(id){
+  const a=S.appeals.find(x=>x.id===id); if(!a) return;
+  openSheet(`<h2>Reminder message</h2><p class="note">Copy this and paste it in your WhatsApp group.</p>
+    <label>Message<textarea id="r-text" readonly style="min-height:240px">${esc(reminderText(a))}</textarea></label>
+    <div class="actions"><button class="btn" type="button" data-act="copy-area">Copy message</button><button class="btn ghost" type="button" data-act="sheet-close">Close</button></div>`);
+}
+function backupSheet(){
+  openSheet(`<h2>Download records</h2><p class="note">${dl?'Each file opens in Excel or Google Sheets. Download all three now and then as your backup.':'Downloads are not available in this view. Open the page in a browser to download.'}</p>
+    ${dl?`<div class="stack"><button class="btn ghost" type="button" data-act="dl" data-id="members">Members register</button><button class="btn ghost" type="button" data-act="dl" data-id="contributions">Who paid what, by appeal</button><button class="btn ghost" type="button" data-act="dl" data-id="account">Account: money in and out</button></div>`:''}
+    <div class="actions"><button class="btn ghost" type="button" data-act="sheet-close">Close</button></div>`);
+}
+async function copyText(text,b,done){
+  try{ await navigator.clipboard.writeText(text); b.textContent=done; }
+  catch(e){ const t=$('#r-text'); if(t&&sheet.open){ t.focus(); t.select(); b.textContent='Selected. Now tap Copy'; } else b.textContent='Press and hold the number to copy'; }
+}
+function importForm(){
+  openSheet(`<h2>Import members</h2>
+    <p class="note">Copy the rows from your spreadsheet, header row included, and paste them below. Without a header row the columns are read in this order: Name, Rank, Force No., Command, Status, Phone, Date of birth. Members already in the register are skipped.</p>
+    <label>Rows from the spreadsheet<textarea id="i-rows" name="rows" style="min-height:170px"></textarea></label>
+    <p class="note" id="import-note"></p>
+    ${sheetButtons('Import members')}`,
+  async f=>{
+    const rows=parseMembers(f.rows||'');
+    if(!rows.length) throw {userMessage:'No members found. Paste the rows with the header row, or put the name in the first column.'};
+    const key=m=>String(m.name||'').trim().toLowerCase()+'|'+String(m.forceNo||'').trim().toLowerCase();
+    const have=new Set(S.members.map(key)), fresh=[];
+    for(const r of rows){
+      if(have.has(key(r))) continue; have.add(key(r));
+      const st=(r.status||'').toLowerCase(), status=/dec|dead|late/.test(st)?'deceased':/ret/.test(st)?'retired':'serving';
+      fresh.push({mid:db.collection('ids').doc().id,pub:{name:r.name,rank:r.rank||'',command:r.command||'',status,dod:status==='deceased'?parseDob(r.dod):'',bday:parseDob(r.dob).slice(5)},
+        prv:{forceNo:r.forceNo||'',dob:parseDob(r.dob),note:'',phone:r.phone||''},no:status!=='deceased'?norm(r.forceNo):''});
+    }
+    for(let i=0;i<fresh.length;i+=200){
+      const part=fresh.slice(i,i+200), bt=db.batch(), nos={};
+      bt.set(db.doc('public/members'),{m:Object.fromEntries(part.map(x=>[x.mid,x.pub]))},{merge:true});
+      bt.set(db.doc('private/members'),{m:Object.fromEntries(part.map(x=>[x.mid,x.prv]))},{merge:true});
+      for(const x of part) if(x.no.length>=3) nos[x.no]=x.mid;
+      for(const [no,mid] of Object.entries(nos)) bt.set(db.doc('roster/'+no),{mid});
+      await put(bt);
+      $('#import-note').textContent='Added '+Math.min(i+200,fresh.length)+' of '+fresh.length+'…';
+    }
+  });
+}
+
+/* ---------- events ---------- */
+sheet.addEventListener('submit',async e=>{
+  e.preventDefault(); if(!sheet._submit||!db) return;
+  const form=e.target, btn=form.querySelector('[type=submit]'), err=$('#sheet-err');
+  const f=Object.fromEntries(new FormData(form)); err.hidden=true; btn.disabled=true;
+  try{ await sheet._submit(f); closeSheet(); }catch(x){ fail(x); btn.disabled=false; }
+});
+sheet.addEventListener('click',e=>{ if(e.target===sheet) closeSheet(); });
+document.addEventListener('change',e=>{ if(e.target.id==='f-status') $('#dod-wrap').hidden=e.target.value!=='deceased'; });
+document.addEventListener('input',e=>{
+  if(e.target.id==='q-members'){ S.q=e.target.value; $('#list').innerHTML=views.members.list(); }
+  if(e.target.id==='q-pay'){ S.payQ=e.target.value; $('#list').innerHTML=views.contributions.list(); }
+});
+async function remove(btn,work){
+  if(!btn.dataset.armed){ btn.dataset.armed='1'; btn.textContent='Tap again to delete'; return; }
+  btn.disabled=true; try{ await work(); closeSheet(); }catch(x){ fail(x); btn.disabled=false; }
+}
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, id=b.dataset.id;
+  switch(act){
+    case 'sheet-close': closeSheet(); break;
+    case 'filter': S.filter=id; render(); break;
+    case 'member': memberSheet(id); break;
+    case 'member-new': memberForm(); break;
+    case 'member-edit': memberForm(id); break;
+    case 'member-del': remove(b,async()=>{ const m=memberById(id)||{}, n=norm(m.forceNo), bt=db.batch(), gone={['m.'+id]:firebase.firestore.FieldValue.delete()};
+      bt.update(db.doc('public/members'),gone); bt.update(db.doc('private/members'),gone); if(n.length>=3&&m.status!=='deceased') bt.delete(db.doc('roster/'+n)); await bt.commit(); }); break;
+    case 'appeal': S.appeal=id; S.payQ=''; if(S.view!=='contributions') location.hash='contributions'; else { render(); window.scrollTo(0,0); } break;
+    case 'appeal-back': S.appeal=null; render(); break;
+    case 'appeal-new': appealForm(); break;
+    case 'appeal-edit': appealForm(id); break;
+    case 'appeal-toggle': { const a=S.appeals.find(x=>x.id===id); if(!a||!db) break; b.disabled=true;
+      try{ await db.doc('appeals/'+id).update(a.status==='closed'?{status:'open'}:{status:'closed',expected:living().length}); }catch(x){ b.disabled=false; } break; }
+    case 'appeal-del': remove(b,async()=>{ await db.doc('appeals/'+id).delete(); S.appeal=null; }); break;
+    case 'pay': paySheet(id); break;
+    case 'pay-del': remove(b,()=>db.doc('appeals/'+S.appeal).update({['paid.'+id]:firebase.firestore.FieldValue.delete()})); break;
+    case 'payout-new': payoutForm(); break;
+    case 'payout-edit': payoutForm(id); break;
+    case 'payout-del': remove(b,()=>db.doc('payouts/'+id).delete()); break;
+    case 'notice-new': noticeForm(); break;
+    case 'notice-edit': noticeForm(id); break;
+    case 'notice-del': remove(b,()=>db.doc('notices/'+id).delete()); break;
+    case 'course-edit': courseForm(); break;
+    case 'import': importForm(); break;
+    case 'payfilter': S.payFilter=id; render(); break;
+    case 'reminder': reminderSheet(id); break;
+    case 'bulkpay': bulkPaySheet(id); break;
+    case 'copy': copyText(b.dataset.text,b,'Copied'); break;
+    case 'copy-area': copyText($('#r-text').value,b,'Copied'); break;
+    case 'backup': backupSheet(); break;
+    case 'dl': if(!dl) break; b.disabled=true;
+      try{ await dl.save({filename:id+'-'+today()+'.csv',data:backupFile(id)}); }
+      catch(x){ if(!x||x.code!=='declined') fail({userMessage:x&&x.code==='rate_limited'?'Wait a moment, then try again.':'The download is not available here.'}); }
+      b.disabled=false; break;
+    case 'exco-new': excoForm(); break;
+    case 'exco-edit': excoForm(id); break;
+    case 'exco-del': remove(b,()=>db.doc('excos/'+id).delete()); break;
+    case 'lock': memberLock(); break;
+    case 'go': show(id); break;
+    case 'menu': menuSheet(); break;
+    case 'admins': adminsSheet(); break;
+    case 'signout': closeSheet(); S.screen='lock'; auth.signOut(); break;
+    case 'recheck': await enter(auth.currentUser); if(S.screen==='pending') gateMsg('Not approved yet. Ask an exco to approve you under Manage excos.'); break;
+    case 'forgot': { const em=($('#login-email').value||'').trim();
+      if(!em){ gateMsg('Type your email above first, then tap Forgot password.'); break; }
+      try{ await auth.sendPasswordResetEmail(em); gateMsg('A reset link has been sent to '+em+'. Check your inbox and spam folder.',true); }catch(x){ gateMsg(authMsg(x)); }
+      break; }
+    case 'claim': { const u=auth.currentUser, bt=db.batch(); b.disabled=true;
+      bt.set(db.doc('admins/'+u.uid),{email:u.email||'',name:S.signupName||u.displayName||'',at:now()});
+      bt.set(db.doc('config/claimed'),{by:u.uid,at:now()});
+      try{ await bt.commit(); await enter(u); }catch(x){ b.disabled=false; gateMsg(authMsg(x)); }
+      break; }
+    case 'admin-ok': { const r=S.requests.find(x=>x.id===id); if(!r) break; b.disabled=true; const bt=db.batch();
+      bt.set(db.doc('admins/'+id),{email:r.email||'',name:r.name||'',at:now(),by:auth.currentUser.uid}); bt.delete(db.doc('requests/'+id));
+      try{ await bt.commit(); S.requests=S.requests.filter(x=>x.id!==id); if(!S.admins.some(x=>x.id===id)) S.admins=[...S.admins,{id,email:r.email,name:r.name}]; adminsSheet(); render(); }catch(x){ fail(x); b.disabled=false; }
+      break; }
+    case 'admin-no': b.disabled=true; try{ await db.doc('requests/'+id).delete(); S.requests=S.requests.filter(x=>x.id!==id); adminsSheet(); render(); }catch(x){ fail(x); b.disabled=false; } break;
+    case 'admin-del': remove(b,()=>db.doc('admins/'+id).delete()); break;
+  }
+});
+document.addEventListener('submit',async e=>{
+  const fid=e.target.id; if(!['unlock-form','login-form','signup-form'].includes(fid)) return;
+  e.preventDefault(); const btn=e.target.querySelector('[type=submit]'), label=btn.textContent;
+  gateMsg(''); btn.disabled=true; btn.textContent='Please wait…';
+  try{
+    if(fid==='unlock-form') await tryUnlock($('#unlock-no').value);
+    else if(fid==='login-form') await auth.signInWithEmailAndPassword($('#login-email').value.trim(),$('#login-pass').value);
+    else {
+      const name=$('#signup-name').value.trim(); if(!name) throw {userMessage:'Enter your name.'};
+      S.signupName=name;
+      const c=await auth.createUserWithEmailAndPassword($('#signup-email').value.trim(),$('#signup-pass').value);
+      try{ await c.user.updateProfile({displayName:name}); }catch(x){}
+    }
+  }catch(x){ gateMsg(authMsg(x)); }
+  if(btn.isConnected){ btn.disabled=false; btn.textContent=label; }
+});
+window.addEventListener('hashchange',route);
+
+/* ---------- start ---------- */
+function boot(){
+  route(); renderHead();
+  if(typeof firebase==='undefined'){ main.dataset.screen='x'; main.innerHTML='<div class="banner">The app could not load. Check your internet connection and open the page again.</div>'; return; }
+  firebase.initializeApp(CONFIG); auth=firebase.auth(); db=firebase.firestore();
+  auth.onAuthStateChanged(u=>enter(u));
+}
+boot();
+</script>
+</body>
+</html>
