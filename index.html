@@ -163,13 +163,13 @@ const NOTICE_TYPES=['Contribution call','Meeting or event','Promotion or news','
 const STATUS={serving:'Serving',retired:'Retired',deceased:'Deceased'};
 
 const S={members:[],contacts:{},appeals:[],payouts:[],notices:[],meta:{},admin:false,loaded:false,problem:'',view:'home',q:'',filter:'all',appeal:null,payQ:''};
-S.got=new Set(); S.excos=[]; S.me=''; S.payFilter='all'; S.screen='loading'; S.rawMembers=[]; S.priv={}; S.requests=[]; S.admins=[]; S.need=6;
+S.got=new Set(); S.excos=[]; S.me=''; S.payFilter='all'; S.screen='loading'; S.rawMembers=[]; S.priv={}; S.requests=[]; S.admins=[]; S.applications=[]; S.need=6;
 const CONFIG={apiKey:"AIzaSyDIh1SAWJpgX6jH641iybN_ECrV1JJUrcE",authDomain:"npf-course-55.firebaseapp.com",projectId:"npf-course-55",storageBucket:"npf-course-55.firebasestorage.app",messagingSenderId:"338572943445",appId:"1:338572943445:web:aa68a5dc993ff2e4d134dc"};
 let db=null, auth=null, unsubs=[], subTimer=0, enterSeq=0;
 const dl={save:async({filename,data})=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'text/csv'})); a.download=filename; document.body.append(a); a.click(); a.remove(); }};
 const norm=v=>{ const t=String(v||''), d=t.replace(/\D/g,''); return d.length>=3?d:t.toUpperCase().replace(/[^A-Z0-9]/g,''); };
 const now=()=>new Date().toISOString();
-function clearData(){ S.members=[]; S.rawMembers=[]; S.priv={}; S.contacts={}; S.appeals=[]; S.payouts=[]; S.notices=[]; S.excos=[]; S.requests=[]; S.admins=[]; }
+function clearData(){ S.members=[]; S.rawMembers=[]; S.priv={}; S.contacts={}; S.appeals=[]; S.payouts=[]; S.notices=[]; S.excos=[]; S.requests=[]; S.admins=[]; S.applications=[]; }
 /* Public member details and exco-only details are kept apart, so members never receive Force Nos., phones or notes. */
 function merge(){
   S.members=S.rawMembers.map(m=>{ const p=S.priv[m.id]||{}; return {...m,forceNo:p.forceNo||'',dob:p.dob||'',note:p.note||''}; });
@@ -189,6 +189,7 @@ function startSubs(){
   if(S.admin){
     unsubs.push(db.doc('private/members').onSnapshot(s=>{ S.priv=Object.fromEntries(map(s).map(p=>[p.id,p])); merge(); got('private'); render(); },dead));
     unsubs.push(db.collection('requests').onSnapshot(s=>{ S.requests=s.docs.map(x=>({...x.data(),id:x.id})); render(); },()=>{}));
+    unsubs.push(db.collection('applications').onSnapshot(s=>{ S.applications=s.docs.map(x=>({...x.data(),id:x.id})); render(); },()=>{}));
     unsubs.push(db.collection('admins').onSnapshot(s=>{ S.admins=s.docs.map(x=>({...x.data(),id:x.id})); },()=>{}));
   }
 }
@@ -212,11 +213,11 @@ function authMsg(x){
 async function enter(u){
   const my=++enterSeq; stopSubs(); S.admin=false; S.me=''; clearData();
   try{
-    if(!u){ show(S.screen==='login'||S.screen==='signup'?S.screen:'lock'); return; }
+    if(!u){ show(['login','signup','register','applied'].includes(S.screen)?S.screen:'lock'); return; }
     if(u.isAnonymous){
       const s=await db.doc('sessions/'+u.uid).get(); if(my!==enterSeq) return;
       const r=s.exists&&s.data().no?await db.doc('roster/'+s.data().no).get():null; if(my!==enterSeq) return;
-      if(!r||!r.exists){ show(S.screen==='login'||S.screen==='signup'?S.screen:'lock'); return; }
+      if(!r||!r.exists){ show(['login','signup','register','applied'].includes(S.screen)?S.screen:'lock'); return; }
       S.me=r.data().mid||''; S.screen='app'; S.appeal=null; history.replaceState(null,'','#home'); renderHead(); route(); startSubs(); return;
     }
     const a=await db.doc('admins/'+u.uid).get(); if(my!==enterSeq) return;
@@ -247,7 +248,21 @@ function gateView(){
     <input class="search" id="unlock-no" autocomplete="off" placeholder="Force No." aria-label="Force No.">${err}
     <div class="actions"><button class="btn" type="submit">Open records</button></div>
     <p class="note">Can’t get in? Ask an exco to check your Force No. on the register.</p></form></section>
-    <button class="link" data-act="go" data-id="login" style="align-self:center">Exco login</button>`;
+    <div class="actions" style="justify-content:center;gap:18px"><button class="link" data-act="go" data-id="register">New member? Register</button><button class="link" data-act="go" data-id="login">Exco login</button></div>`;
+  if(S.screen==='register') return `<section class="panel"><form class="pad stack gate" id="register-form" novalidate><h2>Register as a member</h2>
+    <p class="note">For course mates only. An exco will check your details and approve you. After that, you sign in with your Force No.</p>
+    <label>Full name<input class="search" id="reg-name" autocomplete="name"></label>
+    <label>Rank<input class="search" id="reg-rank" list="reg-ranks"><datalist id="reg-ranks">${RANKS.map(r=>`<option value="${r}">`).join('')}</datalist></label>
+    <label>Force No.<input class="search" id="reg-force" autocomplete="off"></label>
+    <label>Command or formation<input class="search" id="reg-command"></label>
+    <label>Status<select class="search" id="reg-status"><option value="serving">Serving</option><option value="retired">Retired</option></select></label>
+    <label>Phone number<input class="search" id="reg-phone" type="tel" autocomplete="tel"></label>
+    <label>Date of birth<input class="search" id="reg-dob" type="date"></label>${err}
+    <div class="actions"><button class="btn" type="submit">Send registration</button></div></form></section>
+    <button class="link" data-act="go" data-id="lock" style="align-self:center">Back to member sign-in</button>`;
+  if(S.screen==='applied') return `<section class="panel"><div class="pad stack"><h2>Registration sent</h2>
+    <p class="note">An exco will check your details. Once you are approved, come back to this page and enter your Force No. to open the records.</p>
+    <div class="actions"><button class="btn" data-act="go" data-id="lock">Back to member sign-in</button></div></div></section>`;
   if(S.screen==='login') return `<section class="panel"><form class="pad stack gate" id="login-form" novalidate><h2>Exco login</h2>
     <label>Email<input class="search" id="login-email" type="email" autocomplete="username"></label>
     <label>Password<input class="search" id="login-pass" type="password" autocomplete="current-password"></label>${err}
@@ -278,10 +293,39 @@ function memberWrites(bt,id,m,old){
   if(cur.length>=3) bt.set(db.doc('roster/'+cur),{mid});
   return mid;
 }
+const appDup=a=>{ const n=norm(a.forceNo); return n.length<3||S.members.some(m=>norm(m.forceNo)===n); };
+async function approveApps(list){
+  const seen=new Set(), str=(v,n)=>String(v||'').trim().slice(0,n);
+  list=list.filter(a=>{ const n=norm(a.forceNo); if(appDup(a)||seen.has(n)) return false; seen.add(n); return true; });
+  for(let i=0;i<list.length;i+=100){
+    const bt=db.batch(), pub={}, prv={};
+    for(const a of list.slice(i,i+100)){
+      const mid=db.collection('ids').doc().id, dob=parseDob(a.dob);
+      pub[mid]={name:str(a.name,100),rank:str(a.rank,40),command:str(a.command,100),status:a.status==='retired'?'retired':'serving',dod:'',bday:dob.slice(5)};
+      prv[mid]={forceNo:str(a.forceNo,40),dob,note:'',phone:str(a.phone,30)};
+      bt.set(db.doc('roster/'+norm(a.forceNo)),{mid}); bt.delete(db.doc('applications/'+a.id));
+    }
+    bt.set(db.doc('public/members'),{m:pub},{merge:true}); bt.set(db.doc('private/members'),{m:prv},{merge:true});
+    await put(bt);
+  }
+  const done=new Set(list.map(a=>a.id)); S.applications=S.applications.filter(a=>!done.has(a.id));
+}
+function appsSheet(){
+  const apps=[...S.applications].sort((a,b)=>String(a.at||'').localeCompare(String(b.at||''))), ok=apps.filter(a=>!appDup(a)).length;
+  openSheet(`<h2>Member registrations</h2>
+    <p class="note">Approve only people you know to be course mates. Approving adds them to the register, and they can then sign in with their Force No.</p>
+    ${ok>1?`<div class="actions"><button class="btn" type="button" data-act="app-all">Approve all ${ok}</button></div>`:''}
+    <div class="panel">${apps.length?apps.map(a=>{ const dup=appDup(a);
+      return `<div class="row" style="align-items:flex-start"><span class="row-main"><b>${esc(a.name)}</b><small>${[a.rank,a.forceNo,a.command,a.status==='retired'?'Retired':'Serving'].filter(Boolean).map(esc).join(' · ')}</small><small>${[a.phone,a.dob?'Born '+fdate(parseDob(a.dob)):''].filter(Boolean).map(esc).join(' · ')}</small>
+        ${dup?'<span class="pill unpaid" style="align-self:flex-start">Force No. already on the register</span>':''}
+        <span class="actions" style="margin-top:6px">${dup?'':`<button class="btn small" type="button" data-act="app-ok" data-id="${esc(a.id)}">Approve</button>`}<button class="btn small ghost" type="button" data-act="app-no" data-id="${esc(a.id)}">Decline</button></span></span></div>`; }).join(''):empty('No registrations waiting','New members tap Register on the first screen. Their details show here.')}</div>
+    <div class="actions"><button class="btn ghost" type="button" data-act="sheet-close">Close</button></div>`);
+}
 function menuSheet(){
   const u=auth.currentUser||{};
   openSheet(`<h2>Exco menu</h2><p class="note">Signed in as ${esc(u.email)}</p>
     <div class="stack"><button class="btn ghost" type="button" data-act="course-edit">Course name</button>
+    <button class="btn ghost" type="button" data-act="apps">Member registrations${S.applications.length?' ('+S.applications.length+' waiting)':''}</button>
     <button class="btn ghost" type="button" data-act="admins">Manage excos${S.requests.length?' ('+S.requests.length+' waiting)':''}</button>
     <button class="btn ghost" type="button" data-act="backup">Download records</button>
     <button class="btn danger" type="button" data-act="signout">Sign out</button></div>
@@ -384,7 +428,8 @@ function banner(){
   if(S.got.size<S.need) return '<div class="banner">Loading records…</div>';
   if(!S.admin) return '<div class="banner publish"><span>You are signed in with your Force No.</span><button class="link" data-act="lock">Lock</button></div>';
   const missing=S.members.filter(m=>m.status!=='deceased'&&norm(m.forceNo).length<3).length;
-  return (S.requests.length?`<div class="banner publish"><span>${S.requests.length===1?'1 person is':S.requests.length+' people are'} asking to become an exco.</span><button class="btn small" data-act="admins">Review</button></div>`:'')
+  return (S.applications.length?`<div class="banner publish"><span>${S.applications.length===1?'1 new member is':S.applications.length+' new members are'} waiting for approval.</span><button class="btn small" data-act="apps">Review</button></div>`:'')
+    +(S.requests.length?`<div class="banner publish"><span>${S.requests.length===1?'1 person is':S.requests.length+' people are'} asking to become an exco.</span><button class="btn small" data-act="admins">Review</button></div>`:'')
     +(missing?`<div class="banner">${missing===1?'1 living member has':missing+' living members have'} no Force No. and cannot sign in.</div>`:'');
 }
 const addBtn=(act,label)=>S.admin?`<button class="btn small" data-act="${act}">${label}</button>`:'';
@@ -840,6 +885,11 @@ document.addEventListener('click',async e=>{
     case 'go': show(id); break;
     case 'menu': menuSheet(); break;
     case 'admins': adminsSheet(); break;
+    case 'apps': appsSheet(); break;
+    case 'app-ok': case 'app-all': { const list=act==='app-all'?S.applications:S.applications.filter(x=>x.id===id); b.disabled=true;
+      try{ await approveApps(list); appsSheet(); render(); }catch(x){ fail(x); b.disabled=false; }
+      break; }
+    case 'app-no': b.disabled=true; try{ await db.doc('applications/'+id).delete(); S.applications=S.applications.filter(x=>x.id!==id); appsSheet(); render(); }catch(x){ fail(x); b.disabled=false; } break;
     case 'signout': closeSheet(); S.screen='lock'; auth.signOut(); break;
     case 'recheck': await enter(auth.currentUser); if(S.screen==='pending') gateMsg('Not approved yet. Ask an exco to approve you under Manage excos.'); break;
     case 'forgot': { const em=($('#login-email').value||'').trim();
@@ -860,11 +910,20 @@ document.addEventListener('click',async e=>{
   }
 });
 document.addEventListener('submit',async e=>{
-  const fid=e.target.id; if(!['unlock-form','login-form','signup-form'].includes(fid)) return;
+  const fid=e.target.id; if(!['unlock-form','login-form','signup-form','register-form'].includes(fid)) return;
   e.preventDefault(); const btn=e.target.querySelector('[type=submit]'), label=btn.textContent;
   gateMsg(''); btn.disabled=true; btn.textContent='Please wait…';
   try{
     if(fid==='unlock-form') await tryUnlock($('#unlock-no').value);
+    else if(fid==='register-form'){
+      const g=k=>$('#reg-'+k).value.trim(), name=g('name'), no=g('force');
+      if(!name) throw {userMessage:'Enter your full name.'};
+      if(norm(no).length<3) throw {userMessage:'Enter your Force No.'};
+      if(!auth.currentUser) await auth.signInAnonymously();
+      if((await db.doc('roster/'+norm(no)).get()).exists) throw {userMessage:'That Force No. is already on the register. Go back and sign in with it.'};
+      await db.doc('applications/'+auth.currentUser.uid).set({name:name.slice(0,100),rank:g('rank').slice(0,40),forceNo:no.slice(0,40),command:g('command').slice(0,100),status:g('status'),phone:g('phone').slice(0,30),dob:g('dob'),at:now()});
+      show('applied');
+    }
     else if(fid==='login-form') await auth.signInWithEmailAndPassword($('#login-email').value.trim(),$('#login-pass').value);
     else {
       const name=$('#signup-name').value.trim(); if(!name) throw {userMessage:'Enter your name.'};
